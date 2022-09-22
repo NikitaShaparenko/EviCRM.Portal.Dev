@@ -1,0 +1,269 @@
+﻿@using EviCRM.Portal.Controllers
+@using Microsoft.AspNetCore.Hosting
+
+@{
+    ViewBag.Title = "Файловый менеджер";
+    ViewBag.pTitle = "Файловый менеджер";
+    ViewBag.pageTitle = "EviCRM";
+}
+
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject IWebHostEnvironment iwebhost
+
+<link href="https://evicrm.site/portal/css/icons.min.css" rel="stylesheet">
+<link href="https://evicrm.site/portal/css/icons.css" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/file-icon-vectors@1.0.0/dist/file-icon-classic.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/file-icon-vectors@1.0.0/dist/file-icon-square-o.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/file-icon-vectors@1.0.0/dist/file-icon-vivid.min.css" />
+
+
+@{
+    bool file_mode = HttpContextAccessor.HttpContext.Request.Cookies["fileSource"] == "true";
+    string root = HttpContextAccessor.HttpContext.Request.Cookies["fileRoot"];
+}
+
+@{
+    List<FileSystemEntityModel> store_collection = new List<FileSystemEntityModel>();
+
+    if (file_mode)
+    {
+        if (root != null)
+        {
+            store_collection = Program.sc.FileSystemManager_Alexandra(root);
+        }
+        else
+        {
+            store_collection = Program.sc.FileSystemManager_Alexandra();
+        }
+
+    }
+    else
+    {
+        if (root != null)
+        {
+            store_collection = Program.sc.FileSystemManager_Exchange(root);
+        }
+        else
+        {
+            store_collection = Program.sc.FileSystemManager_Exchange();
+        }
+    }
+
+
+}
+
+<body data-sidebar="dark">
+
+    <div class="row">
+        <div class="col-lg-9">
+            <div>
+                <div class="card">
+                    <div class="card-body">
+
+                        <div>
+                            <div>
+                                <h5 class="font-size-16 me-3">Мои файлы</h5>
+
+                            </div>
+
+
+                            <hr class="mt-2">
+
+                            <div class="table-responsive">
+                                <table class="table align-middle table-nowrap table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col" style="width:15px">#</th>
+                                            <th scope="col">Имя</th>
+                                            <th scope="col">Дата изменения</th>
+                                            <th scope="col">Размер</th>
+                                            <th scope="col">Действия</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        <tr>
+                                            <td><i class="bx bx-up-arrow"></td>
+                                            <td colspan="4"> <a href="/api/fsm_aup?root=@root" class="text-dark fw-medium"> ( Вверх )</a></td>
+                                        </tr>
+
+                                        @if (store_collection != null)
+                                        {
+                                            if (store_collection.Count > 0)
+                                            {
+
+
+                                                @foreach (var elem in store_collection)
+                                                {
+                                                    @if (file_mode)
+                                                    {
+                                                        @if (elem.isFile)
+                                                        {
+                                                            <tr>
+                                                                <td><i class="@elem.icon_tag font-size-16 align-middle text-warning me-2"></i></td>
+                                                                <td><a href="/api/rpost?path=@elem.name&iwebhost=@iwebhost.WebRootPath" class="text-dark fw-medium">@System.IO.Path.GetFileName(elem.name)</a></td>
+                                                                <td>@elem.date_modifed.ToShortDateString() , @elem.date_modifed.ToShortTimeString()</td>
+                                                                <td>@EviCRM.Portal.Controllers.StoreController.FormatSize(elem.file_size)</td>
+                                                                <td>
+                                                                    <a href="/@Program.sc.Alexandra_FileDownloader(elem.name)" class="btn btn-outline-primary"><i class="bx bx-download"></i></a>
+                                                                    <a href="/api/fsm_kill?root=@elem.name" class="btn btn-outline-danger"><i class="bx bx-x"></i></a>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                        else
+                                                        {
+                                                            <tr>
+                                                                <td><i class="@elem.icon_tag font-size-16 align-middle text-warning me-2"></i></td>
+                                                                <td><a href="/api/fsm_a?root=@elem.name" class="text-dark fw-medium">@Program.sc.getDirectoryName(elem.name)</a></td>
+                                                                <td>@elem.date_modifed.ToShortDateString() , @elem.date_modifed.ToShortTimeString()</td>
+                                                                <td>( папка )</td>
+                                                                <td>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        @if (elem.isFile)
+                                                        {
+                                                            <tr>
+                                                                <td><i class="@elem.icon_tag font-size-16 align-middle text-warning me-2"></i></td>
+                                                                <td><a href="/api/rpostftp?path=@elem.name&iwebhost=@iwebhost.WebRootPath" class="text-dark fw-medium">@System.IO.Path.GetFileName(elem.name)</a></td>
+                                                                <td>@elem.date_modifed.ToShortDateString() , @elem.date_modifed.ToShortTimeString()</td>
+                                                                <td>@EviCRM.Portal.Controllers.StoreController.FormatSize(elem.file_size)</td>
+                                                                <td>
+                                                                    <a href="/api/fsm_ftpdownload?root=@elem.name" class="btn btn-outline-primary"><i class="bx bx-download"></i></a>
+                                                                    <a href="/api/fsm_ftpkill?root=@elem.name" class="btn btn-outline-danger"><i class="bx bx-x"></i></a>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                        else
+                                                        {
+                                                            <tr>
+                                                                <td><i class="@elem.icon_tag font-size-16 align-middle text-warning me-2"></i></td>
+                                                                <td><a href="/api/fsm_e?root=@elem.name" class="text-dark fw-medium">@Program.sc.getDirectoryName(elem.name)</a></td>
+                                                                <td>@elem.date_modifed.ToShortDateString() , @elem.date_modifed.ToShortTimeString()</td>
+                                                                <td>( папка )</td>
+                                                                <td>
+                                                                </td>
+                                                            </tr>
+                                                        }  
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            <div class="card-body">
+                <div class="text-center">
+                    <h5 class="font-size-15 mb-4">Хранилище</h5>
+                    <div class="apex-charts" id="radial-chart"></div>
+
+                    <p class="text-muted mt-4">Выбери источник и необходимый файл</p>
+                </div>
+
+                <div class="mt-4">
+                    <div class="card border shadow-none mb-2">
+                        <a href="/api/setMode?mode=true" class="text-body">
+
+
+                            @if (file_mode)
+                            {
+                                <div class="p-2" style="background-color:#4c93ff">
+                                    <div class="d-flex">
+
+
+                                        <div class="avatar-xs align-self-center me-2 p-1">
+                                            <div class="avatar-title rounded bg-transparent text-success font-size-20">
+                                                <i class="mdi mdi-server"> </i>
+                                            </div>
+                                        </div>
+                                        <div class="center p-1">
+                                            <h5 class="font-size-13 text-truncate mb-1 text-center"><font color="white">Файлы от Александры</font></h5>
+                                            @* <p class="text-muted text-truncate mb-0"><font color="white">0 файлов</font></p>*@
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="p-2">
+                                    <div class="d-flex">
+                                        <div class="avatar-xs align-self-center me-2 p-1">
+                                            <div class="avatar-title rounded bg-transparent text-success font-size-20">
+                                                <i class="mdi mdi-server"> </i>
+                                            </div>
+                                        </div>
+                                        <div class="center p-1">
+                                            <h5 class="font-size-13 text-truncate mb-1 text-center">Файлы от Александры</h5>
+                                            @* <p class="text-muted text-truncate mb-0"><font color="white">0 файлов</font></p>*@
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+
+                        </a>
+                    </div>
+
+
+
+
+                    <div class="card border shadow-none mb-2">
+                        <a href="/api/setMode?mode=false" class="text-body">
+                            @if (!file_mode)
+                            {
+                                <div class="p-2" style="background-color:#4c93ff">
+                                    <div class="d-flex">
+                                        <div class="avatar-xs align-self-center me-2 p-1">
+                                            <div class="avatar-title rounded bg-transparent text-success font-size-20">
+                                                <i class="mdi mdi-server-network"> </i>
+                                            </div>
+                                        </div>
+
+                                        <div class="center p-1">
+                                            <h5 class="font-size-13 text-truncate mb-1 text-center"><font color="white">Файлы на сервере</font></h5>
+                                            @*<p class="text-muted text-truncate mb-0">0 файлов</p>*@
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="p-2">
+                                    <div class="d-flex">
+                                        <div class="avatar-xs align-self-center me-2 p-1">
+                                            <div class="avatar-title rounded bg-transparent text-success font-size-20">
+                                                <i class="mdi mdi-server-network"> </i>
+                                            </div>
+                                        </div>
+
+                                        <div class="center p-1">
+                                            <h5 class="font-size-13 text-truncate mb-1 text-center">Файлы на сервере</h5>
+                                            @*<p class="text-muted text-truncate mb-0">0 файлов</p>*@
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </a>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+
+

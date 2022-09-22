@@ -1,0 +1,319 @@
+﻿@using Microsoft.AspNetCore.Hosting
+@using Microsoft.AspNetCore.Http.Extensions; 
+@using System.IO
+@using System.Net.Http
+
+@inject IWebHostEnvironment _env
+
+@{
+    ViewData["Title"] = "Портал загрузки документов";
+}
+
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="min-width=device-weight; min-height=device-height">
+    <title>Подключение к серверу совместного редактирования документов</title>
+
+    <script src="https://evicrm.site/portal/js/uploadModal.js"></script>
+    <script type="text/javascript" src="https://evicrm.site/web-apps/apps/api/documents/api.js"></script>
+
+    <link rel="stylesheet" href="https://evicrm.site/portal/css/word_userIframe.css">
+    <link rel="stylesheet" href="https://evicrm.site/portal/css/uploadModal.css">
+    <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
+
+    <style>
+    body{
+        height: 100%;
+        width: 100%;
+    }
+    placeholder{
+        height: 100vh;
+    }
+    </style>
+
+
+    @section scripts{
+   
+    <script>
+        var file="file"
+        var lcl_file="file"
+         fetch('https://@Program.webhost_url/configs/current.txt')
+            .then(response => response.text())
+            .then((data) => {
+                 lcl_file = data
+             })
+       
+        function doTimer()
+        {
+            fetch('https://@Program.webhost_url/configs/current.txt')
+            .then(response => response.text())
+            .then((data) => {
+                 file = data
+             })
+            if (file==lcl_file)
+            {
+                setTimeout(doTimer,2000);
+                return;
+            }
+            else
+            {
+                location.reload();
+            }
+        }
+        doTimer();
+        //window.location.reload();
+    </script>
+}
+
+</head>
+
+<body>
+
+ <input id="files" name="files" type="file" size="1" class="file-upload-btn" onchange="uploadFiles('files');" />
+
+ <script type="text/javascript">
+  
+  function reloadPage()
+  {
+    window.location.reload()
+  }
+
+  function uploadFiles(inputId) {
+  var input = document.getElementById(inputId);
+  var files = input.files;
+  var formData = new FormData();
+
+  for (var i = 0; i != files.length; i++) {
+    formData.append("files", files[i]);
+    //alert("Файл добавлен!");
+  }
+
+  $.ajax(
+    {
+      url: 'https://evicrm.site/portal/Home/Upload',
+      data: formData,
+      processData: false,
+      contentType: false,
+      type: "POST",
+      success: function (data) {
+       
+      },
+      error: function (err) {
+        alert("Произошла ошибка при загрузке файла! Пожалуйста, перезагрузите страничку");
+        console.log("[ajax]: ошибка при загрузке файла (" + err.statusText + ")");
+    }
+    }
+  );
+}
+</script>
+
+ 
+    @{
+        string upd_file_name_path = System.IO.File.ReadAllText(System.IO.Path.Combine(_env.WebRootPath, "configs","current.txt"));
+
+        string upd_file_extension = System.IO.Path.GetExtension(upd_file_name_path);
+        string upd_file_uploaded = "EviCRM User";
+
+        string upd_file_saved_key = "0.0.0.0.0https___evicrm.site_example_files_0.0.0.0_" + upd_file_name_path + System.IO.File.ReadAllText(System.IO.Path.Combine(_env.WebRootPath, "configs","current-key.txt"));;
+      
+        string upd_file_name = System.IO.Path.GetFileNameWithoutExtension(upd_file_name_path);
+        string upd_file_documentType = get_of_programtype(erase_dots(upd_file_extension));
+
+        string doc_url = "https://evicrm.site/example/download?fileName=" + upd_file_name_path + "&useraddress=0.0.0.0";
+        string callback_url = "https://evicrm.site/example/track?fileName=" + upd_file_name_path + "&useraddress=0.0.0.0";
+        
+        if (doc_url.Contains("&amp;")) 
+        {
+            doc_url = doc_url.Replace("&amp;", "&");
+        }
+
+        string user_group = "admin";
+        string user_id = Guid.NewGuid().ToString();
+        string user_name = "Admin";
+        string upd_file_token = Guid.NewGuid().ToString();
+
+        string TokenCleaner(string phrase)
+        {
+            string extens = phrase;
+            if (phrase.Contains("-"))
+            {
+                extens = phrase.Replace("-","");
+            }
+            return extens;
+        }
+
+        string erase_dots(string extension)
+        {
+            string extens = extension;
+            if (extension.Contains("."))
+            {
+                extens = extension.Replace(".","");
+            }
+            return extens;
+        }
+    
+        string get_of_programtype(string filename)
+        {
+            string fn = filename.ToLower();
+            switch (fn)
+            {
+                case "xls":
+                    return "cell";
+                    break;
+                case "xlsx":
+                    return "cell";
+                    break;
+                case "csv":
+                    return "cell";
+                    break;
+                case "doc":
+                    return "word";
+                    break;
+                case "docx":
+                    return "word";
+                    break;
+                case "txt":
+                    return "word";
+                    break;
+                case "odt":
+                    return "word";
+                    break;
+                case "rtf":
+                    return "word";
+                    break;
+                case "ppt":
+                    return "slide";
+                    break;
+                case "pptx":
+                    return "slide";
+                    break;
+                default:
+                    return "word";
+
+            }
+        }
+    
+    }
+
+   
+    <class id="placeholder"></class>
+  
+<script>
+new DocsAPI.DocEditor("placeholder",
+    {
+        "document": {
+        "fileType": "@erase_dots(@upd_file_extension)",
+        "info": {
+            "favorite": true,
+            "folder": "public folder",
+            "owner": "Admin",
+            "sharingSettings": [
+                {
+                    "isLink": true,
+                    "permissions": "Read Only",
+                    "user": "External link"
+                },
+            ],
+            "uploaded": "@upd_file_uploaded"
+        },
+        "key": "@upd_file_saved_key",
+        "permissions": {
+            "chat": true,
+            "comment": true,
+            "copy": true,
+            "deleteCommentAuthorOnly": false,
+            "download": true,
+            "edit": true,
+            "editCommentAuthorOnly": false,
+            "fillForms": true,
+            "modifyContentControl": true,
+            "modifyFilter": true,
+            "print": true,
+            "protect": true,
+            "review": true,
+        },
+        "title": "@upd_file_name",
+        "url": "@Html.Raw(doc_url)",
+        
+    },
+    "documentType": "@upd_file_documentType",
+    "editorConfig": {
+        "actionLink": "https://evicrm.site/portal",
+        "callbackUrl": "@callback_url",
+        "coEditing": {
+            "mode": "strict",
+            "change": false
+        },
+        "createUrl": "https://evicrm.site/portal/",
+        "customization": {
+            "anonymous": {
+                "request": true,
+                "label": "Guest"
+            },
+            "autosave": true,
+            "comments": true,
+            "compactHeader": false,
+            "compactToolbar": true,
+            "compatibleFeatures": true,
+            "features": {
+                "spellcheck": {
+                    "mode": true,
+                    "change": true
+                }
+            },
+            "forcesave": true,
+            "goback": {
+                "blank": true,
+                "requestClose": false,
+                "text": "Docs",
+                "url": "https://@Program.webhost_url/"
+            },
+            "help": false,
+            "hideNotes": false,
+            "hideRightMenu": false,
+            "hideRulers": false,
+            "logo": {
+                "image": "https://evicrm.site/portal/images/evicrm-logo.png",
+                "imageDark": "https://evicrm.site/portal/images/evicrm-logo.png",
+                "imageEmbedded": "https://evicrm.site/portal/images/evicrm-logo.png",
+                "url": "https://evicrm.site/portal"
+            },
+            "macros": false,
+            "mentionShare": true,
+            "plugins": true,
+            "review": {
+                "hideReviewDisplay": false,
+                "showReviewChanges": true,
+                "reviewDisplay": "markup",
+                "trackChanges": true,
+                "hoverMode": true
+            },
+            "toolbarHideFileName": true,
+            "toolbarNoTabs": false,
+            "uiTheme": "theme-light",
+            "unit": "pt",
+            "zoom": 100
+        },
+        "lang": "ru",
+        "location": "ru",
+        "mode": "edit",
+        "region": "ru-RU",
+        "user": {
+            "group": "@user_group",
+            "id": "@user_id",
+            "name": "@user_name",
+        }
+    },
+   
+    "height": "100%",
+    "token":"",
+    "type": "desktop",
+    "width": "100%",
+});
+</script>
+
+</body>
+</html>

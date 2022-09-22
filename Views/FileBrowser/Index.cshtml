@@ -1,0 +1,73 @@
+﻿@page
+@addTagHelper*, Microsoft.AspNetCore.Mvc.TagHelpers
+@model EviCRM.Portal.Controllers.FileBrowserController
+@using EviCRM.OfficeIntegrator.Models
+@using EviCRM.Portal.Models;
+ 
+@{
+    Layout = null;
+}
+ 
+<!DOCTYPE html>
+ 
+<html>
+<head>
+    <meta name="viewport" content="width=device-width"/>
+    <title>Файловый менеджер</title>
+     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script class="jsbin" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+
+       <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Портал EviCRM</title>
+    <link rel="stylesheet" href="https://evicrm.site/portal/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://evicrm.site/portal/css/site.css" />
+</head>
+<body>
+   <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-page="/Index">EviCRM.Portal</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Редактор документов</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/FileBrowser">Список всех документов</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/NotesRedirect">Заметки</a>
+                        </li>
+                           <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Index" target="_blank">Открыть на полный экран</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <table>
+        <tr>
+            <th><h1>&nbsp;Список загруженных файлов:</h1></th>
+            <th></th>
+        </tr>
+      @*  @foreach (FileModel file in Model.Files)
+        {*@
+         @*   <tr>
+                <td>@file.FileName</td>
+                <h4><td><a href="@Url.Page("FileBrowser", "DownloadFile", new { fileName = file.FileName })">&nbsp;Скачать</a></td></h4>
+                <h4><td>&nbsp; | &nbsp;</td></h4>
+                <h4><td><a href="@Url.Page("FileBrowser", "SelectFile", new { fileName = file.FileName })">Открыть в редакторе</a></td></h4>
+                 <h4><td>&nbsp; | &nbsp;</td></h4>
+                <h4><td><a href="@Url.Page("FileBrowser", "DeleteFile", new { fileName = file.FileName })">Удалить</a></td></h4>
+                <!-- <td><a href="@Url.Page("FileBrowser", "SelectFile")">В редактор</a></td> -->
+            </tr>*@
+       @* }*@
+    </table>
+</body>
+</html>

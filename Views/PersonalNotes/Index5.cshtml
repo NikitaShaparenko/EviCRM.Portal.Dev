@@ -1,0 +1,38 @@
+﻿@using Microsoft.AspNetCore.Http;
+@using Microsoft.AspNetCore.Mvc;
+
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Заметки";
+}
+
+<style>
+    body {
+    margin: 0;            /* Reset default margin */
+}
+iframe {
+    display: block;       /* iframes are inline by default */
+    background: #fff;
+    border: none;         /* Reset default border */
+    height: 100vh;        /* Viewport-relative units */
+    width: 100vw;
+}
+</style>
+
+@{
+    string padName = HttpContextAccessor.HttpContext.Request.Cookies["padName"];
+    string sessionID = HttpContextAccessor.HttpContext.Request.Cookies["sessionID"];
+    string lang = HttpContextAccessor.HttpContext.Request.Cookies["lang"];
+    string rtl = HttpContextAccessor.HttpContext.Request.Cookies["rtl"];
+    string sessionToken = HttpContextAccessor.HttpContext.Request.Cookies["sessionToken"];
+}
+
+@*<iframe src="https://evicrm.space/pad/auth_session?padName=@padName&sessionID=@sessionID&lang=@lang&rtl=@rtl&sessionToken=@sessionToken" style="position: absolute; height: 100%; border: none" align="left">
+    Ваш браузер не поддерживает фреймы! Где вы его вообще откопали?
+ </iframe>*@
+
+ <h5>Персональные заметки (видите только вы)</h5>
+ <iframe src="https://evicrm.site/pad/p/@sessionID" style="position: absolute; height: 100%; border: none" align="left">
+    Ваш браузер не поддерживает фреймы! Где вы его вообще откопали?
+ </iframe>

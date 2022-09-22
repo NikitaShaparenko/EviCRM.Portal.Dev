@@ -1,0 +1,52 @@
+﻿@using Microsoft.AspNetCore.Http;
+@using Microsoft.AspNetCore.Mvc;
+
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Заметки";
+}
+
+<style>
+    body {
+    margin: 0;            /* Reset default margin */
+}
+iframe {
+    display: block;       /* iframes are inline by default */
+    background: #fff;
+    border: none;         /* Reset default border */
+    height: 100vh;        /* Viewport-relative units */
+    width: 100vw;
+}
+</style>
+
+@{
+   string padName = erase_postfix(HttpContextAccessor.HttpContext.Request.Cookies["padName"]);
+    string sessionID = HttpContextAccessor.HttpContext.Request.Cookies["sessionID"];
+    string lang = HttpContextAccessor.HttpContext.Request.Cookies["lang"];
+    string rtl = HttpContextAccessor.HttpContext.Request.Cookies["rtl"];
+    string sessionToken = HttpContextAccessor.HttpContext.Request.Cookies["sessionToken"];
+
+  string erase_postfix(string extension)
+        {
+            string extens = extension;
+            if (extension.Contains("%24notes"))
+            {
+                extens = extension.Replace("%24notes","");
+            }
+            if (extension.Contains("$notes"))
+            {
+                extens = extension.Replace("$notes","");
+            }
+            return extens;
+        }
+}
+
+@*<iframe src="https://evicrm.space/pad/auth_session?padName=@padName&sessionID=@sessionID&lang=@lang&rtl=@rtl&sessionToken=@sessionToken" style="position: absolute; height: 100%; border: none" align="left">
+    Ваш браузер не поддерживает фреймы! Где вы его вообще откопали?
+ </iframe>*@
+
+  <h5>Глобальные заметки (видят и редактируют все)</h5>
+ <iframe src="https://evicrm.site/pad/p/@padName" style="position: absolute; height: 100%; border: none" align="left">
+    Ваш браузер не поддерживает фреймы! Где вы его вообще откопали?
+ </iframe>
